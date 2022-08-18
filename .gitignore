@@ -1,0 +1,13 @@
+data/
+.vscode/
+.DS_Store
+*~
+*.html
+*.mo
+*.so
+*.mo
+*.wpo
+*.sop
+*.data
+*.boot
+cns
