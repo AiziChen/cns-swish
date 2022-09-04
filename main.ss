@@ -22,24 +22,24 @@
           [,_ #t])))]
    [else
     (printf "handle udp request...~n")
-    (process-udpsession ip op bv)])
-  (send who `#(done ,ip ,op)))
+    (process-udpsession ip op bv)]))
 
 ;;; Process new connection
-(define (server:start&link ip op)
+(define (server:start ip op)
   (define (reader who)
     (let ([bv (get-bytevector-some ip)])
       (unless (eof-object? bv)
         (mprocess who ip op bv)
-        (reader who))))
+        (send who `#(done ,ip ,op)))))
   (define (init)
     (let ([me self])
-      (spawn&link
+      (spawn
        (lambda ()
          (reader me))))
     `#(ok #f))
   (define (terminate reason state)
     (printf "Connection terminated, reason: ~a~n" reason)
+    (close-output-port op)
     'ok)
   (define (handle-call msg from state) (match msg))
   (define (handle-cast msg state) (match msg))
@@ -50,10 +50,10 @@
         (printf "Connection had been closed~n")
        `#(no-reply ,state)]
       [_ #f]))
-  (gen-server:start&link #f))
+  (gen-server:start #f))
 
 ;;; New Connection handler
-(define (start-server:start&link)
+(define (start-server:start)
   (define-state-tuple <mserver> listener)
   (define (init)
     (let ([listener (listen-tcp (get-host) (get-port) self)])
@@ -69,12 +69,12 @@
     (match msg
       [#(accept-tcp ,_ ,ip ,op)
        (printf "Handling a new connection~n")
-       (server:start&link ip op)
+       (server:start ip op)
        `#(no-reply ,state)]
       [#(accept-tcp-failed ,_ ,_ ,_)
        (printf "Handling new connection falied~n")
        `#(stop ,msg ,state)]))
-  (gen-server:start&link 'mserver))
+  (gen-server:start 'mserver))
 
 
 (define (run-app config-file)
@@ -84,7 +84,7 @@
   (app-sup-spec
    (append
     (make-swish-sup-spec (list swish-event-logger))
-    `(#(mserver ,start-server:start&link permanent 1000 worker))))
+    `(#(mserver ,start-server:start permanent 1000 worker))))
   ;; start app
   (app:start)
   (receive))
