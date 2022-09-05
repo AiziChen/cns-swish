@@ -10,4 +10,7 @@ data/
 *.sop
 *.data
 *.boot
+*.out
 cns
+cns-scheme
+
