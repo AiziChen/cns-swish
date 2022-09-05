@@ -6,7 +6,7 @@
  (udp))
 
 ;;; Process the data
-(define (mprocess who ip op bv)
+(define (mprocess ip op bv)
   (cond
    [(http-header? bv)
     (printf "handle http request...~n")
@@ -18,8 +18,7 @@
       (unless (contains bytevector-u8-ref bv http-flag (bytevector-length http-flag) (string-length (get-http-flag)))
         (match (try (process-tcpsession ip op bv))
           [`(catch ,reason)
-           (printf "Process tcp failed, reason: ~a~n" reason)]
-          [,_ #t])))]
+           (printf "Process tcp failed, reason: ~a~n" reason)])))]
    [else
     (printf "handle udp request...~n")
     (process-udpsession ip op bv)]))
@@ -29,13 +28,11 @@
   (define (reader who)
     (let ([bv (get-bytevector-some ip)])
       (unless (eof-object? bv)
-        (mprocess who ip op bv)
+        (mprocess ip op bv)
         (send who `#(done ,ip ,op)))))
   (define (init)
     (let ([me self])
-      (spawn
-       (lambda ()
-         (reader me))))
+      (spawn (lambda () (reader me))))
     `#(ok #f))
   (define (terminate reason state)
     (printf "Connection terminated, reason: ~a~n" reason)
@@ -49,7 +46,7 @@
         (close-output-port op)
         (printf "Connection had been closed~n")
        `#(no-reply ,state)]
-      [_ #f]))
+      [_ `#(stop ,msg ,state)]))
   (gen-server:start #f))
 
 ;;; New Connection handler

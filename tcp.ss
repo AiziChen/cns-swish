@@ -29,8 +29,7 @@
               (put-bytevector op
                 (string->utf8
                  (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
-              (flush-output-port op)]
-             [,_ #t])))
+              (flush-output-port op)])))
         (begin
           (put-bytevector-some op (string->utf8 "No proxy host"))
           (flush-output-port op))))
