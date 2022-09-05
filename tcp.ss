@@ -52,7 +52,7 @@
                          [rs (pregexp-split "\\s*:\\s*" (utf8->string proxy-line))])
                     (and (>= (length rs) 2)
                          (let* ([host-port (decrypt-host (string->utf8 (cadr rs)))]
-                                [host-and-port (pregexp-split ":" (utf8->string host-port))]))
-                         (and (>= (length host-and-port) 2)
-                              (let* ([port (cadr host-and-port)])
-                                (cons (car host-and-port) (substring port 0 (- (string-length port) 1)))))))))))))
+                                [host-and-port (pregexp-split ":" (utf8->string host-port))])
+                           (and (>= (length host-and-port) 2)
+                                (let* ([port (cadr host-and-port)])
+                                  (cons (car host-and-port) (substring port 0 (- (string-length port) 1))))))))))))))
