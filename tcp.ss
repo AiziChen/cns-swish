@@ -15,7 +15,7 @@
         (let ([host (car proxy)]
               [port (cdr proxy)])
           (when host
-            (printf "proxy host: ~a:~a~n" host port)
+            (printf "proxy host: ~a:~a~%" host port)
             (unless port (set! port 80))
             (match
              (try

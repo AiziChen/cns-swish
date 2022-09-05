@@ -60,17 +60,17 @@
   ;; `fstarts-with?` test
   (let ([s "hello, world"]
         [bv #vu8(33 52 3)])
-    (printf "fstarts-with? test #t result1 : ~a~n" (fstarts-with? string-ref s "hello" 5))
-    (printf "fstarts-with? test #t result2 : ~a~n" (fstarts-with? bytevector-u8-ref bv #vu8(33 52) 2)))
+    (printf "fstarts-with? test #t result1 : ~a~%" (fstarts-with? string-ref s "hello" 5))
+    (printf "fstarts-with? test #t result2 : ~a~%" (fstarts-with? bytevector-u8-ref bv #vu8(33 52) 2)))
   ;; `contains` test
   (let ([s "hello, world"])
-    (printf "contains test #t result: ~a~n" (contains string-ref s ", wor" (string-length s) (string-length ", wor")))
-    (printf "contains test #f result: ~a~n" (contains string-ref s "qwor" (string-length s) (string-length "qwor"))))
+    (printf "contains test #t result: ~a~%" (contains string-ref s ", wor" (string-length s) (string-length ", wor")))
+    (printf "contains test #f result: ~a~%" (contains string-ref s "qwor" (string-length s) (string-length "qwor"))))
   ;; bytevector-u8-index test
   (let ([s (string->utf8 "hello, world")])
-    (printf "bytevector-u8-index test result: ~a~n"
+    (printf "bytevector-u8-index test result: ~a~%"
       (bytevector-u8-index s (string->utf8 "wor")))
-    (printf "bytevector-u8-index test result: ~a~n"
+    (printf "bytevector-u8-index test result: ~a~%"
       (bytevector-u8-index s s)))
   )
 
