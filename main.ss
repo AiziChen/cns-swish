@@ -15,7 +15,8 @@
       (unless (contains bytevector-u8-ref bv http-flag (bytevector-length http-flag) (string-length (get-http-flag)))
         (match (try (process-tcpsession ip op bv))
           [`(catch ,reason)
-           (printf "Process tcp failed, reason: ~a~%" reason)])))]
+           (printf "Process tcp failed, reason: ~a~%" reason)]
+          [,_ 'ok])))]
    [else
     (printf "handle udp request...~%")
     (process-udpsession ip op bv)]))

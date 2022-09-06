@@ -20,16 +20,18 @@
             (match
              (try
               (let-values ([(dip dop) (connect-tcp host port)])
-                ;; start tcp forward
-                (spawn (lambda () (tcp-forward dip op)))
-                (tcp-forward ip dop)
-                (close-output-port dop)
-                (close-input-port dip)))
-             [`(catch ,e)
-              (put-bytevector op
-                (string->utf8
-                 (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
-              (flush-output-port op)])))
+                (list 'result dip dop)))
+              [`(catch ,_)
+               (put-bytevector op
+                 (string->utf8
+                  (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
+               (flush-output-port op)]
+              [(result ,dip ,dop)
+               ;; start tcp forward
+               (spawn (lambda () (tcp-forward dip op)))
+               (tcp-forward ip dop)
+               (close-output-port dop)
+               (close-input-port dip)])))
         (begin
           (put-bytevector-some op (string->utf8 "No proxy host"))
           (flush-output-port op))))
