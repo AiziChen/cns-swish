@@ -1,5 +1,5 @@
 #!chezscheme
-(library (tools)
+library (tools)
   (export
    bytevector-u8-index
    contains
@@ -39,17 +39,15 @@
       (fstarts-with? ref-p c1 0 c2 c2len)]
      [(ref-p c1 c1-start c2 c2len)
       (let lp ([i 0])
-        (if (= i c2len)
-            #t
+        (or (= i c2len)
             (and (equal? (ref-p c1 (+ i c1-start)) (ref-p c2 i))
                  (lp (+ i 1)))))]))
 
   (define (contains ref-p c1 c2 c1len c2len)
     (let lp ([i 0])
-      (if (= i c1len)
-          #f
-          (or (fstarts-with? ref-p c1 i c2 c2len)
-              (lp (+ i 1)))))))
+      (and (= i c1len)
+           (or (fstarts-with? ref-p c1 i c2 c2len)
+               (lp (+ i 1))))))
 
 
 #!eof mats
