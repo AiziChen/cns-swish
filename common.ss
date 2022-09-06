@@ -40,7 +40,7 @@
       (set! *proxy-key (cdr (assoc 'proxy-key ss)))
       (set! *secret (cdr (assoc 'secret ss)))
       (set! *http-flag (cdr (assoc 'http-flag ss)))
-      (set! *http-flag (cdr (assoc 'tcp-buffer-size ss)))))
+      (set! *tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))))
 
   (define decrypt-data!
     (case-lambda
