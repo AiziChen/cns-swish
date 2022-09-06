@@ -1,5 +1,5 @@
 #!chezscheme
-library (tools)
+(library (tools)
   (export
    bytevector-u8-index
    contains
@@ -48,6 +48,8 @@ library (tools)
       (and (= i c1len)
            (or (fstarts-with? ref-p c1 i c2 c2len)
                (lp (+ i 1))))))
+
+  )
 
 
 #!eof mats
