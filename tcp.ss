@@ -44,7 +44,7 @@
             (flush-output-port op)
             (lp (get-bytevector-some ip) rem))))))
 
-  (define *host-re* (re "\\s+:\\s+"))
+  (define *host-re* (re "\\s*:\\s*"))
   (define (get-proxy bv)
     (let ([start (bytevector-u8-index bv (string->utf8 (get-proxy-key)))])
       (and start
