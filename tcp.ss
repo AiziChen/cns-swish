@@ -35,13 +35,14 @@
           (flush-output-port op))))
 
   (define (tcp-forward ip op)
-    (let lp ([data (get-bytevector-some ip)]
-             [subi 0])
-      (unless (eof-object? data)
-        (let ([rem (decrypt-data! data subi)])
-          (put-bytevector-some op data)
-          (flush-output-port op)
-          (lp (get-bytevector-some ip) rem)))))
+    (parameterize ([file-buffer-size (get-tcp-buffer-size)])
+      (let lp ([data (get-bytevector-some ip)]
+               [subi 0])
+        (unless (eof-object? data)
+          (let ([rem (decrypt-data! data subi)])
+            (put-bytevector-some op data)
+            (flush-output-port op)
+            (lp (get-bytevector-some ip) rem))))))
 
   (define (get-proxy bv)
     (let ([start (bytevector-u8-index bv (string->utf8 (get-proxy-key)))])

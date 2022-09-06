@@ -7,6 +7,7 @@
    get-proxy-key
    get-port
    get-secret
+   get-tcp-buffer-size
    http-header?
    response-header
    set-config!
@@ -17,26 +18,29 @@
    (swish imports)
    (tools))
 
-  (define *host* "::")
-  (define *port* 520)
-  (define *proxy-key* "Meng")
-  (define *secret* "1234Abc")
-  (define *http-flag* "httpUDP")
+  (define *host #f)
+  (define *port #f)
+  (define *proxy-key #f)
+  (define *secret #f)
+  (define *http-flag #f)
+  (define *tcp-buffer-size #f)
 
-  (define (get-host) *host*)
-  (define (get-port) *port*)
-  (define (get-proxy-key) *proxy-key*)
-  (define (get-secret) *secret*)
-  (define (get-http-flag) *http-flag*)
+  (define (get-host) *host)
+  (define (get-port) *port)
+  (define (get-proxy-key) *proxy-key)
+  (define (get-secret) *secret)
+  (define (get-http-flag) *http-flag)
+  (define (get-tcp-buffer-size) *tcp-buffer-size)
 
   ;;; setting up global configurations
   (define (set-config! file)
     (let ([ss (with-input-from-file file (lambda () (read)))])
-      (set! *host* (cdr (assoc 'host ss)))
-      (set! *port* (cdr (assoc 'port ss)))
-      (set! *proxy-key* (cdr (assoc 'proxy-key ss)))
-      (set! *secret* (cdr (assoc 'secret ss)))
-      (set! *http-flag* (cdr (assoc 'http-flag ss)))))
+      (set! *host (cdr (assoc 'host ss)))
+      (set! *port (cdr (assoc 'port ss)))
+      (set! *proxy-key (cdr (assoc 'proxy-key ss)))
+      (set! *secret (cdr (assoc 'secret ss)))
+      (set! *http-flag (cdr (assoc 'http-flag ss)))
+      (set! *http-flag (cdr (assoc 'tcp-buffer-size ss)))))
 
   (define decrypt-data!
     (case-lambda
