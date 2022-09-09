@@ -37,7 +37,7 @@
           (flush-output-port op))))
 
   (define (tcp-forward ip op)
-    (parameterize ([file-buffer-size (get-tcp-buffer-size)])
+    (parameterize ([file-buffer-size (tcp-buffer-size)])
       (let lp ([data (get-bytevector-some ip)]
                [subi 0])
         (unless (eof-object? data)
@@ -48,7 +48,7 @@
 
   (define *host-re* (re "\\s*:\\s*"))
   (define (get-proxy bv)
-    (let ([start (bytevector-u8-index bv (string->utf8 (get-proxy-key)))])
+    (let ([start (bytevector-u8-index bv (string->utf8 (proxy-key)))])
       (and start
            (let ([end (bytevector-u8-index bv start (string->utf8 "\r"))])
              (and end

@@ -3,53 +3,46 @@
   (export
    decrypt-data!
    decrypt-host
-   get-host
-   get-proxy-key
-   get-port
-   get-secret
-   get-tcp-buffer-size
+   host
+   proxy-key
+   port
+   secret
+   tcp-buffer-size
+   http-flag
    http-header?
    response-header
-   set-config!
-   get-http-flag)
+   set-config!)
   (import
    (chezscheme)
    (cipher)
    (swish imports)
    (tools))
 
-  (define *host #f)
-  (define *port #f)
-  (define *proxy-key #f)
-  (define *secret #f)
-  (define *http-flag #f)
-  (define *tcp-buffer-size #f)
-
-  (define (get-host) *host)
-  (define (get-port) *port)
-  (define (get-proxy-key) *proxy-key)
-  (define (get-secret) *secret)
-  (define (get-http-flag) *http-flag)
-  (define (get-tcp-buffer-size) *tcp-buffer-size)
+  (define host (make-parameter #f))
+  (define port (make-parameter #f))
+  (define proxy-key (make-parameter #f))
+  (define secret (make-parameter #f))
+  (define http-flag (make-parameter #f))
+  (define tcp-buffer-size (make-parameter #f))
 
   ;;; setting up global configurations
   (define (set-config! file)
     (let ([ss (with-input-from-file file (lambda () (read)))])
-      (set! *host (cdr (assoc 'host ss)))
-      (set! *port (cdr (assoc 'port ss)))
-      (set! *proxy-key (cdr (assoc 'proxy-key ss)))
-      (set! *secret (cdr (assoc 'secret ss)))
-      (set! *http-flag (cdr (assoc 'http-flag ss)))
-      (set! *tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))))
+      (host (cdr (assoc 'host ss)))
+      (port (cdr (assoc 'port ss)))
+      (proxy-key (cdr (assoc 'proxy-key ss)))
+      (secret (cdr (assoc 'secret ss)))
+      (http-flag (cdr (assoc 'http-flag ss)))
+      (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))))
 
   (define decrypt-data!
     (case-lambda
      [(bv) (decrypt-data! bv 0)]
-     [(bv subi) (xor-cipher! bv (get-secret) subi)]))
+     [(bv subi) (xor-cipher! bv (secret) subi)]))
 
   (define (decrypt-host bvhost)
     (let ([host (base64-decode-bytevector bvhost)])
-      (xor-cipher! host (get-secret))
+      (xor-cipher! host (secret))
       host))
 
   ;; '((header . header-length) ...)
