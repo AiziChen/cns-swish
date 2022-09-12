@@ -73,6 +73,8 @@
 
 
 (define (run-app config-file)
+  ;; setup optimize-leve
+  (optimize-level 3)
   ;; setup the configuration
   (set-config! config-file)
   ;; app supervisor specials
@@ -95,13 +97,11 @@ if not specify, default use `config.ss`"]
    [version -v --version bool "display version"]))
 
 (let ([opt (parse-command-line-arguments app-cli)])
-  (when (opt 'help)
-    (display-help *APP_NAME* app-cli)
-    (exit 0))
-  (when (opt 'version)
-    (printf "~a v0.01~%" *APP_NAME*)
-    (exit 0))
   (cond
+   [(opt 'help)
+    (display-help *APP_NAME* app-cli)]
+   [(opt 'version)
+    (printf "~a v0.01~%" *APP_NAME*)]
    [(opt 'config-file)
     (run-app (opt 'config-file))]
    [else
