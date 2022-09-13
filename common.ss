@@ -27,13 +27,14 @@
 
   ;;; setting up global configurations
   (define (set-config! file)
-    (let ([ss (with-input-from-file file (lambda () (read)))])
+    (let ([ss (with-input-from-file file read)])
       (host (cdr (assoc 'host ss)))
       (port (cdr (assoc 'port ss)))
       (proxy-key (cdr (assoc 'proxy-key ss)))
       (secret (cdr (assoc 'secret ss)))
       (http-flag (cdr (assoc 'http-flag ss)))
-      (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))))
+      (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))
+      (heap-reserve-ratio (cdr (assoc 'heap-reserve-ratio ss)))))
 
   (define decrypt-data!
     (case-lambda

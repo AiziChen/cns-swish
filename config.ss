@@ -4,4 +4,5 @@
  (proxy-key . "Meng")
  (secret . "quanyec")
  (http-flag . "httpUDP")
- (tcp-buffer-size . 65536))
+ (tcp-buffer-size . 65536)
+ (heap-reserve-ratio . 0.8))
