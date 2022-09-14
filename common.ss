@@ -38,8 +38,8 @@
 
   (define decrypt-data!
     (case-lambda
-     [(bv) (decrypt-data! bv 0)]
-     [(bv subi) (xor-cipher! bv (secret) subi)]))
+     [(bv) (decrypt-data! bv 0 (bytevector-length bv))]
+     [(bv subi len) (xor-cipher! bv (secret) subi len)]))
 
   (define (decrypt-host bvhost)
     (let ([host (base64-decode-bytevector bvhost)])

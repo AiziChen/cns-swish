@@ -43,9 +43,8 @@
       (let lp ([n (get-bytevector-some! ip bv 0 4096)]
                [subi 0])
         (if (not (eof-object? n))
-            (let* ([data (bytevector-truncate! bv n)]
-                   [rem (decrypt-data! data subi)])
-              (put-bytevector-some op data)
+            (let ([rem (decrypt-data! bv subi n)])
+              (put-bytevector-some op bv 0 n)
               (flush-output-port op)
               (lp (get-bytevector-some! ip bv 0 4096) rem))
             (tcp-bufpool-putback! bv)))))
