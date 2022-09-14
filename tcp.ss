@@ -40,10 +40,11 @@
 
   (define (tcp-forward ip op)
     (let ([bv (tcp-bufpool-get!)])
-      (let lp ([data (get-bytevector-some! ip bv 0 4096)]
+      (let lp ([n (get-bytevector-some! ip bv 0 4096)]
                [subi 0])
-        (if (not (eof-object? data))
-            (let ([rem (decrypt-data! data subi)])
+        (if (not (eof-object? n))
+            (let* ([data (bytevector-truncate! bv n)]
+                   [rem (decrypt-data! data subi)])
               (put-bytevector-some op data)
               (flush-output-port op)
               (lp (get-bytevector-some! ip bv 0 4096) rem))
