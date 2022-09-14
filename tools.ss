@@ -72,14 +72,17 @@
       (define (alloc len)
         (do ([i 0 (+ i 1)])
             ((= i len))
-          (stack:push! s (make-bytevector size))))
+          (stack:push! s (make-bytevector size)))
+        s)
       (alloc len)
       (values
-        (lambda ()
-          (let ([elt (stack:pop! s)])
-            (or elt (stack:pop! (alloc inc)))))
-        (lambda (buf)
-              (stack:push! s buf)))]))
+       ;; buffer-get!
+       (lambda ()
+         (let ([elt (stack:pop! s)])
+           (or elt (stack:pop! (alloc inc)))))
+       ;; buffer-putback!
+       (lambda (buf)
+         (stack:push! s buf)))]))
 
   )
 
