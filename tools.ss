@@ -4,7 +4,8 @@
    bytevector-u8-index
    contains
    fstarts-with?
-   subbytevector)
+   subbytevector
+   make-bufpool)
   (import
    (chezscheme))
 
@@ -31,7 +32,7 @@
           [(= index end) '()]
           [else
            (cons (bytevector-u8-ref bv index)
-             (lp (+ index 1)))])))]))
+                 (lp (+ index 1)))])))]))
 
   (define fstarts-with?
     (case-lambda
@@ -48,6 +49,37 @@
       (and (= i c1len)
            (or (fstarts-with? ref-p c1 i c2 c2len)
                (lp (+ i 1))))))
+
+  ;; hashtable based stack
+  (define make-stack make-weak-eq-hashtable)
+  (define (stack:push! s elt)
+    (hashtable-set! s (hashtable-size s) elt))
+  (define (stack:pop! s)
+    (let ([index (- (hashtable-size s) 1)])
+      (and (>= index 0)
+           (let ([elt (hashtable-ref s index #!bwp)])
+             (hashtable-delete! s index)
+             (if (bwp-object? elt)
+                 (stack:pop! s)
+                 elt)))))
+  (define stack:clear! hashtable-clear!)
+
+  (define make-bufpool
+    (case-lambda
+     [(size) (make-bufpool size 120 60)]
+     [(size isize inc)
+      (define s (make-stack))
+      (define (alloc size)
+        (do ([i 0 (+ i 1)])
+            ((= i size))
+          (stack:push! s (make-bytevector size))))
+      (alloc isize)
+      (values
+        (lambda ()
+          (let ([elt (stack:pop! s)])
+            (or elt (stack:pop! (alloc inc)))))
+        (lambda (buf)
+              (stack:push! s buf)))]))
 
   )
 

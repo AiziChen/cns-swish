@@ -9,6 +9,8 @@
    (swish imports)
    (tools))
 
+  (define-values (tcp-bufpool-get! tcp-bufpool-putback!) (make-bufpool 4096))
+
   (define (process-tcpsession ip op bv)
     (define proxy (get-proxy bv))
     (if proxy
@@ -37,14 +39,15 @@
           (flush-output-port op))))
 
   (define (tcp-forward ip op)
-    (parameterize ([file-buffer-size (tcp-buffer-size)])
-      (let lp ([data (get-bytevector-some ip)]
+    (let ([bv (tcp-bufpool-get!)])
+      (let lp ([data (get-bytevector-some! ip bv 0 4096)]
                [subi 0])
-        (unless (eof-object? data)
-          (let ([rem (decrypt-data! data subi)])
-            (put-bytevector-some op data)
-            (flush-output-port op)
-            (lp (get-bytevector-some ip) rem))))))
+        (if (not (eof-object? data))
+            (let ([rem (decrypt-data! data subi)])
+              (put-bytevector-some op data)
+              (flush-output-port op)
+              (lp (get-bytevector-some! ip bv 0 4096) rem))
+            (tcp-bufpool-putback! bv)))))
 
   (define *host-re* (re "\\s*:\\s*"))
   (define (get-proxy bv)
