@@ -67,13 +67,13 @@
   (define make-bufpool
     (case-lambda
      [(size) (make-bufpool size 120 60)]
-     [(size isize inc)
+     [(size len inc)
       (define s (make-stack))
-      (define (alloc size)
+      (define (alloc len)
         (do ([i 0 (+ i 1)])
-            ((= i size))
+            ((= i len))
           (stack:push! s (make-bytevector size))))
-      (alloc isize)
+      (alloc len)
       (values
         (lambda ()
           (let ([elt (stack:pop! s)])
