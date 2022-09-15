@@ -64,25 +64,25 @@
                  elt)))))
   (define stack:clear! hashtable-clear!)
 
+  ;; stack based buffer pool
   (define make-bufpool
     (case-lambda
-     [(size) (make-bufpool size 120 60)]
-     [(size len inc)
+     [() (make-bufpool 120)]
+     [(inc)
       (define s (make-stack))
-      (define (alloc len)
+      (define (alloc bv-size len)
         (do ([i 0 (+ i 1)])
             ((= i len))
-          (stack:push! s (make-bytevector size)))
+          (stack:push! s (make-bytevector bv-size)))
         s)
-      (alloc len)
       (values
        ;; buffer-get!
-       (lambda ()
+       (lambda (bv-size)
          (let ([elt (stack:pop! s)])
-           (or elt (stack:pop! (alloc inc)))))
+           (or elt (stack:pop! (alloc bv-size inc)))))
        ;; buffer-putback!
-       (lambda (buf)
-         (stack:push! s buf)))]))
+       (lambda (bv)
+         (stack:push! s bv)))]))
 
   )
 
