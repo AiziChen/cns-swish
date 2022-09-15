@@ -40,14 +40,14 @@
 
   (define (tcp-forward ip op)
     (let ([bv (tcp-bufpool-get! (tcp-buffer-size))])
-      (let lp ([n (get-bytevector-some! ip bv 0 4096)]
+      (let lp ([n (get-bytevector-some! ip bv 0 (tcp-buffer-size))]
                [subi 0])
-        (if (not (eof-object? n))
-            (let ([rem (decrypt-data! bv subi n)])
-              (put-bytevector-some op bv 0 n)
-              (flush-output-port op)
-              (lp (get-bytevector-some! ip bv 0 4096) rem))
-            (tcp-bufpool-putback! bv)))))
+        (unless (eof-object? n)
+          (let ([rem (decrypt-data! bv subi n)])
+            (put-bytevector-some op bv 0 n)
+            (flush-output-port op)
+            (lp (get-bytevector-some! ip bv 0 (tcp-buffer-size)) rem))))
+      (tcp-bufpool-putback! bv)))
 
   (define *host-re* (re "\\s*:\\s*"))
   (define (get-proxy bv)
