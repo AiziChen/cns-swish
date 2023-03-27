@@ -13,21 +13,18 @@
     (flush-output-port op)
     (let ([http-flag (string->utf8 (http-flag))])
       (unless (contains bytevector-u8-ref bv http-flag (bytevector-length http-flag) (bytevector-length http-flag))
-        (match (try (process-tcpsession ip op bv))
-          [`(catch ,reason)
-           (printf "Process tcp failed, reason: ~a~%" reason)]
-          [,_ 'ok])))]
+        (process-tcpsession ip op bv)))]
    [else
     (printf "handle udp request...~%")
     (process-udpsession ip op bv)]))
 
 
 (define (server:start ip op)
-  (define (reader who)
+  (define (reader me)
     (let ([bv (get-bytevector-some ip)])
       (unless (eof-object? bv)
-        (handle-connection ip op bv)
-        (send who `#(done ,ip ,op)))))
+        (handle-connection ip op bv)))
+    (send me `#(done ,ip ,op)))
   (define (init)
     (let ([me self])
       (spawn (lambda () (reader me))))
@@ -73,7 +70,7 @@
 
 
 (define (run-app config-file)
-  ;; setup optimize-leve
+  ;; setup optimize-level
   (optimize-level 3)
   ;; setup the configuration
   (set-config! config-file)
@@ -87,7 +84,7 @@
   (receive))
 
 
-(define *APP_NAME* "cns-scheme")
+(define *APP_NAME* "cns")
 
 (define app-cli
   (cli-specs

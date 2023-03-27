@@ -22,15 +22,15 @@
             (match
              (try
               (let-values ([(dip dop) (connect-tcp host port)])
-                (list 'result dip dop)))
+                `#(result ,dip ,dop)))
               [`(catch ,_)
                (put-bytevector op
                  (string->utf8
                   (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
                (flush-output-port op)]
-              [(result ,dip ,dop)
+              [#(result ,dip ,dop)
                ;; start tcp forward
-               (spawn (lambda () (tcp-forward dip op)))
+               (spawn&link (lambda () (tcp-forward dip op)))
                (tcp-forward ip dop)
                (close-output-port dop)
                (close-input-port dip)])))
