@@ -38,6 +38,7 @@
   (define (handle-info msg state)
     (match msg
       [#(done ,ip ,op)
+        (close-input-port ip)
         (close-output-port op)
         (printf "Connection has been closed~%")
        `#(no-reply ,state)]
@@ -77,7 +78,7 @@
   ;; app supervisor specials
   (app-sup-spec
    (append
-    (make-swish-sup-spec (list swish-event-logger))
+    (if (logger-on?) (make-swish-sup-spec (list swish-event-logger)) '())
     `(#(mserver ,start-server:start permanent 1000 worker))))
   ;; start app
   (app:start)

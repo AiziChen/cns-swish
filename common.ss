@@ -11,7 +11,8 @@
    http-flag
    http-header?
    response-header
-   set-config!)
+   set-config!
+   logger-on?)
   (import
    (chezscheme)
    (cipher)
@@ -24,6 +25,7 @@
   (define secret (make-parameter #f))
   (define http-flag (make-parameter #f))
   (define tcp-buffer-size (make-parameter #f))
+  (define logger-on? (make-parameter #t))
 
   ;;; setting up global configurations
   (define (set-config! file)
@@ -34,7 +36,8 @@
       (secret (cdr (assoc 'secret ss)))
       (http-flag (cdr (assoc 'http-flag ss)))
       (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))
-      (heap-reserve-ratio (cdr (assoc 'heap-reserve-ratio ss)))))
+      (heap-reserve-ratio (cdr (assoc 'heap-reserve-ratio ss)))
+      (logger-on? (cdr (assoc 'logger-on? ss)))))
 
   (define decrypt-data!
     (case-lambda
