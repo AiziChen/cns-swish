@@ -31,9 +31,7 @@
               [#(result ,dip ,dop)
                ;; start tcp forward
                (spawn&link (lambda () (tcp-forward dip op)))
-               (tcp-forward ip dop)
-               (close-output-port dop)
-               (close-input-port dip)])))
+               (tcp-forward ip dop)])))
         (begin
           (put-bytevector-some op (string->utf8 "No proxy host"))
           (flush-output-port op))))
