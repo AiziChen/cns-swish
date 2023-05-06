@@ -47,7 +47,9 @@
             (put-bytevector-some op bv 0 n)
             (flush-output-port op)
             (lp (get-bytevector-some! ip bv 0 (tcp-buffer-size)) rem))))
-      (tcp-bufpool-putback! bv)))
+      (tcp-bufpool-putback! bv)
+      (close-output-port op)
+      (close-input-port ip)))
 
   (define *host-re* (re "\\s*:\\s*"))
   (define (get-proxy bv)

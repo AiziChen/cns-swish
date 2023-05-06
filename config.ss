@@ -1,6 +1,6 @@
 ;;; configure file with configurations
 ((host . "::")
- (port . 1080)
+ (port . 443)
  (proxy-key . "Meng")
  (secret . "quanyec")
  (http-flag . "httpUDP")
