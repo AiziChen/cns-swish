@@ -38,6 +38,7 @@
 
   (define (tcp-forward ip op)
     (let ([bv (tcp-bufpool-get! (tcp-buffer-size))])
+      (try
       (let lp ([n (get-bytevector-some! ip bv 0 (tcp-buffer-size))]
                [subi 0])
         (unless (eof-object? n)
@@ -45,7 +46,7 @@
             (put-bytevector-some op bv 0 n)
             (flush-output-port op)
             (lp (get-bytevector-some! ip bv 0 (tcp-buffer-size)) rem))))
-      (tcp-bufpool-putback! bv)
+      (tcp-bufpool-putback! bv))
       (close-output-port op)
       (close-input-port ip)))
 
