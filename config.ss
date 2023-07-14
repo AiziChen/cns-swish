@@ -1,4 +1,4 @@
-;;; configure file with configurations
+;;; configurations
 ((host . "::")
  (port . 443)
  (proxy-key . "Meng")
