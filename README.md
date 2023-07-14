@@ -4,10 +4,10 @@
 ## What is this?
 
 This project is CNS in [Swish](https://github.com/becls/swish.git).
-had been modified by Quanye: [Swish-for-CNS](https://github.com/AiziChen/swish/tree/for-cns)
+modified version [Swish-for-CNS](https://github.com/AiziChen/swish/tree/for-cns)
 for suitable for this project.
 
-The intent of cns-scheme is to replace the [previous CNS implementation](https://github.com/AiziChen/CNS.git)
+The intent of this project is to replace the [previous CNS implementation](https://github.com/AiziChen/CNS.git)
 to perform more reliable band-width and more stable.
 
 
