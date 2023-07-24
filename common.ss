@@ -4,7 +4,7 @@
    decrypt-data!
    decrypt-host
    host
-   proxy-key
+   host-regex
    port
    secret
    tcp-buffer-size
@@ -21,7 +21,7 @@
 
   (define host (make-parameter #f))
   (define port (make-parameter #f))
-  (define proxy-key (make-parameter #f))
+  (define host-regex (make-parameter #t))
   (define secret (make-parameter #f))
   (define http-flag (make-parameter #f))
   (define tcp-buffer-size (make-parameter #f))
@@ -29,10 +29,11 @@
 
   ;;; setting up global configurations
   (define (set-config! file)
-    (let ([ss (with-input-from-file file read)])
+    (let* ([ss (with-input-from-file file read)]
+           [proxy-key (cdr (assoc 'proxy-key ss))])
       (host (cdr (assoc 'host ss)))
       (port (cdr (assoc 'port ss)))
-      (proxy-key (cdr (assoc 'proxy-key ss)))
+      (host-regex (re (string-append proxy-key ":\\s*(.+)\\r")))
       (secret (cdr (assoc 'secret ss)))
       (http-flag (cdr (assoc 'http-flag ss)))
       (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))

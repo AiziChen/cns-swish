@@ -13,7 +13,7 @@
     (flush-output-port op)
     (let ([http-flag (string->utf8 (http-flag))])
       (unless (contains bytevector-u8-ref bv http-flag (bytevector-length http-flag) (bytevector-length http-flag))
-        (process-tcpsession ip op bv)))]
+        (process-tcpsession ip op (utf8->string bv))))]
    [else
     (printf "handle udp request...~%")
     (process-udpsession ip op bv)]))
