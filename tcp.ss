@@ -51,7 +51,7 @@
       (close-input-port ip)))
 
   (define (get-proxy header)
-    (let ([matches (pregexp-match host-regex header)])
+    (let ([matches (pregexp-match (host-regex) header)])
       (and (= (length matches) 2)
            (let* ([host-port (decrypt-host (string->utf8 (cadr matches)))]
                   [host-and-port (pregexp-split ":" (utf8->string host-port))])
