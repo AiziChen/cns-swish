@@ -50,31 +50,21 @@
       (xor-cipher! host (secret))
       host))
 
-  ;; '((header . header-length) ...)
   (define *headers*
-    (map (lambda (v) (cons (string->utf8 v) (string-length v)))
-      '("CONNECT" "GET" "POST" "HEAD" "PUT" "COPY"
-        "DELETE" "MOVE" "OPTIONS" "LINK" "UNLINK"
-         "TRACE" "WRAPPER")))
-  (define *web-socket-header*
-    (let ([name "WebSocket"])
-      (cons (string->utf8 name) (string-length name))))
-  (define *connect-header*
-    (let ([name "CON"])
-      (cons (string->utf8 name) (string-length name))))
+      (list "CONNECT" "GET" "POST" "HEAD" "PUT" "COPY"
+            "DELETE" "MOVE" "OPTIONS" "LINK" "UNLINK"
+            "TRACE" "WRAPPER"))
 
-  (define (http-header? bv)
+  (define (http-header? header)
     (ormap (lambda (h)
-             (fstarts-with? bytevector-u8-ref bv (car h) (cdr h)))
+             (starts-with-ci? header h))
       *headers*))
 
-  (define (response-header bv)
+  (define (response-header header)
     (cond
-     [(contains bytevector-u8-ref bv (car *web-socket-header*)
-        (bytevector-length bv) (cdr *web-socket-header*))
+     [(string-contains-ci? header "websocket")
       (string->utf8 "HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: CuteBi Network Tunnel, (%>w<%)\r\n\r\n")]
-     [(contains bytevector-u8-ref bv (car *connect-header*)
-        (bytevector-length bv) (cdr *connect-header*))
+     [(starts-with-ci? header "CON")
       (string->utf8 "HTTP/1.1 200 Connection established\r\nServer: CuteBi Network Tunnel, (%>w<%)\r\nConnection: keep-alive\r\n\r\n")]
      [else
       (string->utf8 "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nServer: CuteBi Network Tunnel, (%>w<%)\r\nConnection: keep-alive\r\n\r\n")]))

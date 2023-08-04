@@ -6,14 +6,14 @@
  (udp))
 
 (define (handle-connection ip op bv)
+  (define header (utf8->string bv))
   (cond
-   [(http-header? bv)
+   [(http-header? header)
     (printf "handle http request...~%")
-    (put-bytevector op (response-header bv))
+    (put-bytevector op (response-header header))
     (flush-output-port op)
-    (let ([http-flag (string->utf8 (http-flag))])
-      (unless (contains bytevector-u8-ref bv http-flag (bytevector-length http-flag) (bytevector-length http-flag))
-        (process-tcpsession ip op (utf8->string bv))))]
+    (unless (string-contains? header (http-flag))
+      (process-tcpsession ip op header))]
    [else
     (printf "handle udp request...~%")
     (process-udpsession ip op bv)]))
