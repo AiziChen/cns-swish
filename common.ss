@@ -47,8 +47,10 @@
       (heap-reserve-ratio (cdr (assoc 'heap-reserve-ratio ss)))
       (logger-on? (cdr (assoc 'logger-on? ss))))
     (tcp-buf-queue
-     ((make-queue) 'set
-      (make-bufpool (tcp-queue-size) (tcp-buffer-size)))))
+     (let ([q (make-queue)])
+       (q 'set!
+         (make-bufpool (tcp-queue-size) (tcp-buffer-size)))
+       q)))
 
   (define decrypt-data!
     (case-lambda

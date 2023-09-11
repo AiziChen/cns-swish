@@ -78,7 +78,7 @@
          [(eq? act 'empty?)
           (queue:empty? q)]
          [(eq? act 'set!)
-          (when (and (= (length (car arg)) 1)
+          (when (and (= (length arg) 1)
                      (pair? (car arg)))
             (set! q (car arg)))]
          [else #f]))))
