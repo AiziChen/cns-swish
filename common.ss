@@ -8,11 +8,13 @@
    port
    secret
    tcp-buffer-size
+   tcp-queue-size
    http-flag
    http-header?
    response-header
    set-config!
-   logger-on?)
+   logger-on?
+   tcp-buf-queue)
   (import
    (chezscheme)
    (cipher)
@@ -25,9 +27,13 @@
   (define secret (make-parameter #f))
   (define http-flag (make-parameter #f))
   (define tcp-buffer-size (make-parameter #f))
+  (define tcp-queue-size (make-parameter #f))
   (define logger-on? (make-parameter #t))
 
-  ;;; setting up global configurations
+  (define tcp-buf-queue (make-parameter #f))
+
+
+  ;; setting up global configurations
   (define (set-config! file)
     (let* ([ss (with-input-from-file file read)]
            [proxy-key (cdr (assoc 'proxy-key ss))])
@@ -37,8 +43,12 @@
       (secret (cdr (assoc 'secret ss)))
       (http-flag (cdr (assoc 'http-flag ss)))
       (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))
+      (tcp-queue-size (cdr (assoc 'tcp-queue-size ss)))
       (heap-reserve-ratio (cdr (assoc 'heap-reserve-ratio ss)))
-      (logger-on? (cdr (assoc 'logger-on? ss)))))
+      (logger-on? (cdr (assoc 'logger-on? ss))))
+    (tcp-buf-queue
+     ((make-queue) 'set
+      (make-bufpool (tcp-queue-size) (tcp-buffer-size)))))
 
   (define decrypt-data!
     (case-lambda
@@ -51,9 +61,9 @@
       host))
 
   (define *headers*
-      (list "CONNECT" "GET" "POST" "HEAD" "PUT" "COPY"
-            "DELETE" "MOVE" "OPTIONS" "LINK" "UNLINK"
-            "TRACE" "WRAPPER"))
+    (list "CONNECT" "GET" "POST" "HEAD" "PUT" "COPY"
+      "DELETE" "MOVE" "OPTIONS" "LINK" "UNLINK"
+      "TRACE" "WRAPPER"))
 
   (define (http-header? header)
     (ormap (lambda (h)

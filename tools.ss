@@ -4,10 +4,12 @@
    bytevector-u8-index
    contains
    fstarts-with?
-   subbytevector
-   make-bufpool)
+   make-bufpool
+   make-queue
+   subbytevector)
   (import
-   (chezscheme))
+   (chezscheme)
+   (swish queue))
 
 
   (define bytevector-u8-index
@@ -32,7 +34,7 @@
           [(= index end) '()]
           [else
            (cons (bytevector-u8-ref bv index)
-                 (lp (+ index 1)))])))]))
+             (lp (+ index 1)))])))]))
 
   (define fstarts-with?
     (case-lambda
@@ -50,40 +52,42 @@
            (or (fstarts-with? ref-p c1 i c2 c2len)
                (lp (+ i 1))))))
 
-  ;; hashtable based stack
-  (define make-stack make-weak-eq-hashtable)
-  (define (stack:push! s elt)
-    (hashtable-set! s (hashtable-size s) elt))
-  (define (stack:pop! s)
-    (let ([index (- (hashtable-size s) 1)])
-      (and (>= index 0)
-           (let ([elt (hashtable-ref s index #!bwp)])
-             (hashtable-delete! s index)
-             (if (bwp-object? elt)
-                 (stack:pop! s)
-                 elt)))))
-  (define stack:clear! hashtable-clear!)
+  (define (pmake-list p n)
+    (cond
+     [(= n 0) '()]
+     [else
+      (cons (p) (pmake-list p (-1+ n)))]))
 
-  ;; stack based buffer pool
-  (define make-bufpool
-    (case-lambda
-     [() (make-bufpool 120)]
-     [(inc)
-      (define s (make-stack))
-      (define (alloc bv-size len)
-        (do ([i 0 (+ i 1)])
-            ((= i len))
-          (stack:push! s (make-bytevector bv-size)))
-        s)
-      (values
-       ;; buffer-get!
-       (lambda (bv-size)
-         (let ([elt (stack:pop! s)])
-           (or elt (stack:pop! (alloc bv-size inc)))))
-       ;; buffer-putback!
-       (lambda (bv)
-         (stack:push! s bv)))]))
+  (define (make-queue)
+    (let ([q queue:empty])
+      (lambda (act . arg)
+        (cond
+         [(eq? act 'add-front!)
+          (when (= (length arg) 1)
+            (set! q (queue:add-front (car arg) q)))]
+         [(eq? act 'add!)
+          (when (= (length arg) 1)
+            (set! q (queue:add (car arg) q)))]
+         [(eq? act 'get) q]
+         [(eq? act 'drop!)
+          (let ([elt (cadr q)])
+            (set! q (queue:drop q))
+            elt)]
+         [(eq? act 'empty!)
+          (set! q queue:empty)]
+         [(eq? act 'empty?)
+          (queue:empty? q)]
+         [(eq? act 'set!)
+          (when (and (= (length (car arg)) 1)
+                     (pair? (car arg)))
+            (set! q (car arg)))]
+         [else #f]))))
 
+  (define (make-bufpool buf-size queue-size)
+    `(,(pmake-list
+        (lambda () (make-bytevector buf-size))
+        (-1+ queue-size))
+      ,(make-bytevector buf-size)))
   )
 
 

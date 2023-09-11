@@ -9,7 +9,6 @@
    (swish imports)
    (tools))
 
-  (define-values (tcp-bufpool-get! tcp-bufpool-putback!) (make-bufpool))
 
   (define (process-tcpsession ip op header)
     (define proxy (get-proxy header))
@@ -23,30 +22,34 @@
              (try
               (let-values ([(dip dop) (connect-tcp host port)])
                 `#(result ,dip ,dop)))
-              [`(catch ,_)
-               (put-bytevector op
-                 (string->utf8
-                  (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
-               (flush-output-port op)]
-              [#(result ,dip ,dop)
-               ;; start tcp forward
-               (spawn&link (lambda () (tcp-forward dip op)))
-               (tcp-forward ip dop)])))
+             [`(catch ,_)
+              (put-bytevector op
+                (string->utf8
+                 (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
+              (flush-output-port op)]
+             [#(result ,dip ,dop)
+              ;; start tcp forward
+              (spawn&link (lambda () (tcp-forward dip op)))
+              (tcp-forward ip dop)])))
         (begin
           (put-bytevector-some op (string->utf8 "No proxy host"))
           (flush-output-port op))))
 
   (define (tcp-forward ip op)
-    (let ([bv (tcp-bufpool-get! (tcp-buffer-size))])
+    (let* ([pool-empty? ((tcp-buf-queue) 'empty?)]
+           [bv (if pool-empty?
+                   (make-bytevector (tcp-buffer-size))
+                   ((tcp-buf-queue) 'drop!))])
       (try
-      (let lp ([n (get-bytevector-some! ip bv 0 (tcp-buffer-size))]
-               [subi 0])
-        (unless (eof-object? n)
-          (let ([rem (decrypt-data! bv subi n)])
-            (put-bytevector-some op bv 0 n)
-            (flush-output-port op)
-            (lp (get-bytevector-some! ip bv 0 (tcp-buffer-size)) rem)))))
-      (tcp-bufpool-putback! bv)
+       (let lp ([n (get-bytevector-some! ip bv 0 (tcp-buffer-size))]
+                [subi 0])
+         (unless (eof-object? n)
+           (let ([rem (decrypt-data! bv subi n)])
+             (put-bytevector-some op bv 0 n)
+             (flush-output-port op)
+             (lp (get-bytevector-some! ip bv 0 (tcp-buffer-size)) rem)))))
+      (unless pool-empty?
+        ((tcp-buf-queue) 'add! bv))
       (close-output-port op)
       (close-input-port ip)))
 
