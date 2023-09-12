@@ -86,6 +86,7 @@
 
 
 (define *APP_NAME* "cns")
+(define *APP_VERSION_NO* "0.02")
 
 (define app-cli
   (cli-specs
@@ -99,7 +100,7 @@ if not specify, default use `config.ss`"]
    [(opt 'help)
     (display-help *APP_NAME* app-cli)]
    [(opt 'version)
-    (printf "~a v0.01~%" *APP_NAME*)]
+    (printf "~a v~a~%" *APP_NAME* *APP_VERSION_NO*)]
    [(opt 'config-file)
     (run-app (opt 'config-file))]
    [else
