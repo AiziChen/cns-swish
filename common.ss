@@ -52,7 +52,7 @@
     (tcp-buf-queue
      (let ([q (make-queue)])
        (q 'set!
-         (make-bufpool (tcp-queue-size) (tcp-buffer-size)))
+         (make-bufpool (tcp-buffer-size) (tcp-queue-size)))
        q)))
 
   (define decrypt-data!
