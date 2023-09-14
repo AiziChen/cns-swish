@@ -24,7 +24,7 @@ clean:
 
 help:
 	@echo "make run       -- run main.ss"
-	@echo "make/make all  -- build project(include \`$(*name*)\` and \`$(*name*).boot\` file)"
+	@echo "make/make all  -- build project(generated \`$(*name*)\` and \`$(*name*).boot\` files)"
 	@echo "make test      -- test this project"
 	@echo "make coverage  -- test and coverage this project"
 	@echo "make clean     -- clean this project"
