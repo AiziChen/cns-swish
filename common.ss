@@ -9,7 +9,7 @@
    secret
    tcp-buffer-size
    tcp-queue-size
-   buffer-auto-increase?
+   buffer-pool-fixed-size?
    http-flag
    http-header?
    response-header
