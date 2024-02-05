@@ -6,6 +6,6 @@
  (http-flag . "httpUDP")
  (tcp-buffer-size . 8192)
  (tcp-queue-size . 120)
- (buffer-pool-fixed-size? . #t)
+ (buffer-pool-fixed? . #t)
  (heap-reserve-ratio . 0.8)
  (logger-on? . #f))

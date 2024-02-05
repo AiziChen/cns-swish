@@ -9,7 +9,7 @@
    secret
    tcp-buffer-size
    tcp-queue-size
-   buffer-pool-fixed-size?
+   buffer-pool-fixed?
    http-flag
    http-header?
    response-header
@@ -29,7 +29,7 @@
   (define http-flag (make-parameter #f))
   (define tcp-buffer-size (make-parameter #f))
   (define tcp-queue-size (make-parameter #f))
-  (define buffer-pool-fixed-size? (make-parameter #f))
+  (define buffer-pool-fixed? (make-parameter #f))
   (define logger-on? (make-parameter #f))
 
   (define tcp-buf-queue (make-parameter #f))
@@ -46,7 +46,7 @@
       (http-flag (cdr (assoc 'http-flag ss)))
       (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))
       (tcp-queue-size (cdr (assoc 'tcp-queue-size ss)))
-      (buffer-pool-fixed-size? (cdr (assoc 'buffer-pool-fixed-size? ss)))
+      (buffer-pool-fixed? (cdr (assoc 'buffer-pool-fixed? ss)))
       (heap-reserve-ratio (cdr (assoc 'heap-reserve-ratio ss)))
       (logger-on? (cdr (assoc 'logger-on? ss))))
     (tcp-buf-queue

@@ -48,7 +48,7 @@
              (put-bytevector-some op bv 0 n)
              (flush-output-port op)
              (lp (get-bytevector-some! ip bv 0 (tcp-buffer-size)) rem)))))
-      (unless (and pool-empty? (buffer-pool-fixed-size?))
+      (unless (and pool-empty? (buffer-pool-fixed?))
         ((tcp-buf-queue) 'add! bv))
       (close-output-port op)
       (close-input-port ip)))
