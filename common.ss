@@ -94,5 +94,5 @@
 (isolate-mat common-test ()
   (let ([content1 "GET / HTTP/1.1\r\n"]
         [content2 "WS / HTTP/1.1\r\n"])
-    (printf "content1: ~a~n" (http-header? (string->utf8 content1)))
-    (printf "content2: ~a~n" (http-header? (string->utf8 content2)))))
+    (printf "content1: ~a~n" (http-header? content1))
+    (printf "content2: ~a~n" (http-header? content2))))
