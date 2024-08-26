@@ -23,6 +23,7 @@
   (define (reader me)
     (let ([bv (get-bytevector-some ip)])
       (unless (eof-object? bv)
+        (tcp-nodelay #t)
         (handle-connection ip op bv)))
     (send me `#(done ,ip ,op)))
   (define (init)
