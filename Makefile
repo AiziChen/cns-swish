@@ -8,7 +8,7 @@ run:
 	swish main.ss
 
 all:
-	swish-build -o $(*name*) main.ss -b scheme --rtlib swish
+	swish-build -o $(*name*) main.ss -b petite --rtlib swish
 
 test:
 	swish-test --progress test --report mat-report.html .
