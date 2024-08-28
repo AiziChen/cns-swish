@@ -28,7 +28,7 @@
                  (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
               (flush-output-port op)]
              [#(result ,dip ,dop)
-              (tcp-nodelay #t)
+              (tcp-nodelay dop #t)
               ;; start tcp forward
               (spawn&link (lambda () (tcp-forward dip op)))
               (tcp-forward ip dop)])))
