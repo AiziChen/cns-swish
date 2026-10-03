@@ -5,18 +5,19 @@
  (tools)
  (udp))
 
+
 (define (handle-connection ip op bv)
-  (define header (utf8->string bv))
-  (cond
-   [(http-header? header)
-    (printf "handle http request...~%")
-    (put-bytevector op (response-header header))
-    (flush-output-port op)
-    (unless (string-contains? header (http-flag))
-      (process-tcpsession ip op header))]
-   [else
-    (printf "handle udp request...~%")
-    (process-udpsession ip op bv)]))
+  (let ([header (guard (x [else #f]) (utf8->string bv))])
+    (cond
+     [(and header (http-header? header))
+      (printf "handle http request...~%")
+      (put-bytevector op (response-header header))
+      (flush-output-port op)
+      (unless (string-contains? header (http-flag))
+        (process-tcpsession ip op header))]
+     [else
+      (printf "handle udp request...~%")
+      (process-udpsession ip op bv)])))
 
 
 (define (server:start ip op)
@@ -31,17 +32,17 @@
       (spawn (lambda () (reader me))))
     `#(ok #f))
   (define (terminate reason state)
-    (printf "Connection terminated, reason: ~a~%" reason)
-    (close-output-port op)
+    (printf "Connection worker terminated, reason: ~a~%" reason)
     'ok)
-  (define (handle-call msg from state) (match msg))
-  (define (handle-cast msg state) (match msg))
+  (define (handle-call msg from state) 
+    `#(reply #(error bad-call) ,state))
+  (define (handle-cast msg state) 
+    `#(no-reply ,state))
   (define (handle-info msg state)
     (match msg
-      [#(done ,ip ,op)
-        (close-input-port ip)
-        (close-output-port op)
-        (printf "Connection has been closed~%")
+      [#(done ,_ ,_)
+       ;; Keep process alive or exit cleanly without prematurely closing active sockets
+       (printf "Initial handling complete~%")
        `#(no-reply ,state)]
       [_ `#(stop ,msg ,state)]))
   (gen-server:start #f))
@@ -57,8 +58,10 @@
     (printf "Disconnected, reason: ~a~%" reason)
     (close-tcp-listener ($state listener))
     'ok)
-  (define (handle-call msg from state) (match msg))
-  (define (handle-cast msg state) (match msg))
+  (define (handle-call msg from state) 
+    `#(reply #(error bad-call) ,state))
+  (define (handle-cast msg state) 
+    `#(no-reply ,state))
   (define (handle-info msg state)
     (match msg
       [#(accept-tcp ,_ ,ip ,op)
@@ -66,8 +69,9 @@
        (server:start ip op)
        `#(no-reply ,state)]
       [#(accept-tcp-failed ,_ ,_ ,_)
-       (printf "Handling new connection falied~%")
-       `#(stop ,msg ,state)]))
+       (printf "Handling new connection failed~%")
+       `#(stop ,msg ,state)]
+      [_ `#(no-reply ,state)]))
   (gen-server:start 'mserver))
 
 

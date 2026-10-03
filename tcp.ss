@@ -12,29 +12,32 @@
 
   (define (process-tcpsession ip op header)
     (define proxy (get-proxy header))
-    (if proxy
+    (if (and proxy (vector-ref proxy 0))
         (let ([host (vector-ref proxy 0)]
-              [port (vector-ref proxy 1)])
-          (when host
-            (printf "proxy host: ~a:~a~%" host port)
-            (unless port (set! port 80))
-            (match
-             (try
-              (let-values ([(dip dop) (connect-tcp host port)])
-                `#(result ,dip ,dop)))
-             [`(catch ,_)
-              (put-bytevector op
-                (string->utf8
-                 (string-append "Proxy address [" host ":" port "] ResolveTCP() error")))
-              (flush-output-port op)]
-             [#(result ,dip ,dop)
-              (tcp-nodelay dop #t)
-              ;; start tcp forward
-              (spawn&link (lambda () (tcp-forward dip op)))
-              (tcp-forward ip dop)])))
+              [port (or (vector-ref proxy 1) 80)])
+          (printf "proxy host: ~a:~a~%" host port)
+          (match
+           (try
+            (let-values ([(dip dop) (connect-tcp host port)])
+              `#(result ,dip ,dop)))
+           [`(catch ,_)
+            (put-bytevector op
+              (string->utf8
+               (format "Proxy address [~a:~a] ResolveTCP() error" host port)))
+            (flush-output-port op)
+            (close-input-port ip)
+            (close-output-port op)]
+           [#(result ,dip ,dop)
+            (tcp-nodelay dop #t)
+            ;; start tcp forward
+            (spawn&link (lambda () (tcp-forward dip op)))
+            (tcp-forward ip dop)]))
         (begin
-          (put-bytevector-some op (string->utf8 "No proxy host"))
-          (flush-output-port op))))
+          (put-bytevector op (string->utf8 "No proxy host"))
+          (flush-output-port op)
+          (close-input-port ip)
+          (close-output-port op))))
+
 
   (define (tcp-forward ip op)
     (let* ([pool-empty? ((tcp-buf-queue) 'empty?)]
@@ -46,7 +49,8 @@
                 [subi 0])
          (unless (eof-object? n)
            (let ([rem (decrypt-data! bv subi n)])
-             (put-bytevector-some op bv 0 n)
+             ;; Guarantees complete write of n bytes
+             (put-bytevector op bv 0 n)
              (flush-output-port op)
              (lp (get-bytevector-some! ip bv 0 (tcp-buffer-size)) rem)))))
       (unless (and pool-empty? (buffer-pool-fixed?))
