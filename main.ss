@@ -22,10 +22,14 @@
 
 (define (server:start ip op)
   (define (reader me)
-    (let ([bv (get-bytevector-some ip)])
-      (unless (eof-object? bv)
-        (tcp-nodelay op #t)
-        (handle-connection ip op bv)))
+    (guard (x [else
+               (printf "Error processing connection: ~a~%" x)
+               (close-input-port ip)
+               (close-output-port op)])
+      (let ([bv (get-bytevector-some ip)])
+        (unless (eof-object? bv)
+          (tcp-nodelay op #t)
+          (handle-connection ip op bv))))
     (send me `#(done ,ip ,op)))
   (define (init)
     (let ([me self])
