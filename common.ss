@@ -2,6 +2,7 @@
 (library (common)
   (export
    decrypt-data!
+   encrypt-data!
    decrypt-host
    host
    host-regex
@@ -58,7 +59,10 @@
   (define decrypt-data!
     (case-lambda
      [(bv) (decrypt-data! bv 0 (bytevector-length bv))]
-     [(bv subi len) (xor-cipher! bv (secret) subi len)]))
+     [(bv subi len) (xor-cipher! bv (secret) subi len)]
+     [(bv start len subi) (xor-cipher! bv (secret) subi start len)]))
+
+  (define encrypt-data! decrypt-data!)
 
   (define (decrypt-host bvhost)
     (let ([host (base64-decode-bytevector bvhost)])

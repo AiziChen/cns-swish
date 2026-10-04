@@ -10,8 +10,10 @@
   (define xor-cipher!
     (case-lambda
      [(data secret) (xor-cipher! data secret 0 (bytevector-length data))]
-     [(data secret subi data-len)
-      (let ([secret-len (string-length secret)])
+     [(data secret subi data-len) (xor-cipher! data secret subi 0 data-len)]
+     [(data secret subi start data-len)
+      (let ([secret-len (string-length secret)]
+            [i start])
         (do ([i 0 (+ i 1)])
             ((= i data-len) (remainder (+ subi i) secret-len))
           (let ([rem (remainder (+ subi i) secret-len)]
