@@ -3,7 +3,7 @@
  (port . 443)
  (proxy-key . "Meng")
  (secret . "quanyec")
- (http-flag . "httpUDP")
+ (udp-flag . "httpUDP")
  (tcp-buffer-size . 8192)
  (tcp-queue-size . 120)
  (buffer-pool-fixed? . #t)

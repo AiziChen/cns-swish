@@ -13,8 +13,9 @@
       (printf "handle http request...~%")
       (put-bytevector op (response-header header))
       (flush-output-port op)
-      (unless (string-contains? header (http-flag))
-        (process-tcpsession ip op header))]
+      (if (string-contains? header (udp-flag))
+          (handle-connection ip op (get-bytevector-some ip))
+          (process-tcpsession ip op header))]
      [else
       (printf "handle udp request...~%")
       (process-udpsession ip op bv)])))

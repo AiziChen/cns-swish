@@ -11,7 +11,7 @@
    tcp-buffer-size
    tcp-queue-size
    buffer-pool-fixed?
-   http-flag
+   udp-flag
    http-header?
    response-header
    set-config!
@@ -27,7 +27,7 @@
   (define port (make-parameter #f))
   (define host-regex (make-parameter #f))
   (define secret (make-parameter #f))
-  (define http-flag (make-parameter #f))
+  (define udp-flag (make-parameter #f))
   (define tcp-buffer-size (make-parameter #f))
   (define tcp-queue-size (make-parameter #f))
   (define buffer-pool-fixed? (make-parameter #f))
@@ -44,7 +44,7 @@
       (port (cdr (assoc 'port ss)))
       (host-regex (re (string-append proxy-key ":\\s*(.+)\\r")))
       (secret (cdr (assoc 'secret ss)))
-      (http-flag (cdr (assoc 'http-flag ss)))
+      (udp-flag (cdr (assoc 'udp-flag ss)))
       (tcp-buffer-size (cdr (assoc 'tcp-buffer-size ss)))
       (tcp-queue-size (cdr (assoc 'tcp-queue-size ss)))
       (buffer-pool-fixed? (cdr (assoc 'buffer-pool-fixed? ss)))
