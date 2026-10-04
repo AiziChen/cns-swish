@@ -1,12 +1,12 @@
 #!chezscheme
 (library (udp)
   (export
-    process-udpsession)
+   process-udpsession)
   (import
-    (chezscheme)
-    (swish imports)
-    (common)
-    (udp-tools))
+   (chezscheme)
+   (swish imports)
+   (common)
+   (udp-tools))
 
   ;; ====================================================================
   ;; 1. Helper: Parse & Forward Packets (TCP Stream -> Remote UDP)
@@ -137,16 +137,19 @@
   ;; 4. Main Entry Point: process-udpsession
   ;; ====================================================================
   (define (process-udpsession ip op initial-bv)
-    (match (try (open-udp-socket))
-      [`(catch ,reason)
-       (printf "Failed to open UDP socket: ~a~%" reason)
-       (close-input-port ip)
-       (close-output-port op)]
-      [,udp-sock
-       (printf "Start httpUDP session~%")
-       ;; Spawn UDP -> TCP forwarder in background
-       (spawn&link (lambda () (udp->tcp-forward udp-sock op)))
-       ;; Run TCP -> UDP forwarder in main worker process
-       (tcp->udp-forward ip udp-sock initial-bv)]))
+    ;; Check address type from initial packet header (byte 5)
+    (let* ([atyp (if (>= (bytevector-length initial-bv) 6)
+                     (bytevector-u8-ref initial-bv 5)
+                     1)]
+           [family (if (or (= atyp 3) (= atyp 4)) AF_INET6 AF_INET)])
+      (match (try (open-udp-socket family))
+        [`(catch ,reason)
+         (printf "Failed to open UDP socket: ~a~%" reason)
+         (close-input-port ip)
+         (close-output-port op)]
+        [,udp-sock
+         (printf "Start httpUDP session~%")
+         (spawn&link (lambda () (udp->tcp-forward udp-sock op)))
+         (tcp->udp-forward ip udp-sock initial-bv)])))
 
   )
