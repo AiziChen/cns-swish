@@ -142,7 +142,7 @@
        (printf "Failed to open UDP socket: ~a~%" reason)
        (close-input-port ip)
        (close-output-port op)]
-      [#(result ,udp-sock)
+      [,udp-sock
        (printf "Start httpUDP session~%")
        ;; Spawn UDP -> TCP forwarder in background
        (spawn&link (lambda () (udp->tcp-forward udp-sock op)))
